@@ -7,33 +7,26 @@ connectToMongoDb("mongodb://localhost:27017/shortUrls").then(() =>
 );
 
 const urlRouter = require("./routes/url");
-const Url = require("./models/url");
+const staticRouter = require("./routes/staticRouter");
+const UserRoute = require("./routes/user");
 const app = express();
 
 const PORT = 3000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/url", urlRouter);
-
-// app.use("/:shortId", async (req, res) => {
-//   const { shortId } = req.params;
-
-//   const entry = await Url.findOneAndUpdate(
-//     { shortId },
-//     { $push: { visitHistory: { timeStamp: Date.now() } } }
-//   );
-
-//   res.redirect(entry.redirectUrl);
-// });
+app.use("/", staticRouter);
+app.use("/user", UserRoute);
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
-app.get("/", async (req, res) => {
-  const allUrls = await Url.find({});
-  res.render("home", { urls: allUrls });
-});
+// app.get("/", async (req, res) => {
+//   const allUrls = await Url.find({});
+//   res.render("home", { urls: allUrls });
+// });
 
 app.listen(PORT, () =>
   console.log(`Server is running on port localhost:${PORT}`)
