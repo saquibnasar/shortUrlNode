@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require("path");
+const cookieParser = require("cookie-parser");
+const { restrictToAuthenticated, checkAuth } = require("./middlewares/auth");
 
 const connectToMongoDb = require("./connect");
 connectToMongoDb("mongodb://localhost:27017/shortUrls").then(() =>
@@ -15,10 +17,12 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+// app.use(restrictToAuthenticated());
 
-app.use("/url", urlRouter);
-app.use("/", staticRouter);
+app.use("/url", restrictToAuthenticated, urlRouter);
 app.use("/user", UserRoute);
+app.use("/", checkAuth, staticRouter);
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
@@ -29,5 +33,5 @@ app.set("views", path.resolve("./views"));
 // });
 
 app.listen(PORT, () =>
-  console.log(`Server is running on port localhost:${PORT}`)
+  console.log(`Server is running on port http://localhost:${PORT}`)
 );
