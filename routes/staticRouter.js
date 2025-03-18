@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Url = require("../models/url");
-router.get("/", async (req, res) => {
-  if (!req.user) return res.redirect("/login");
+const { restrictTo } = require("../middlewares/auth");
+router.get("/admin/urls", restrictTo(["ADMIN"]), async (req, res) => {
+  const urls = await Url.find({});
 
+  res.render("home", { urls: urls });
+});
+router.get("/", restrictTo(["NORMAL", "ADMIN"]), async (req, res) => {
   const urls = await Url.find({ createdBy: req.user._id });
 
   res.render("home", { urls: urls });

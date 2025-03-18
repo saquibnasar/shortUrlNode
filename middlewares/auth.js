@@ -1,22 +1,20 @@
 const { getSessionIdToUser } = require("../service/auth");
 
 const checkForAuthentication = (req, res, next) => {
-  const authorizationHeaderValue = req.headers["authorization"];
-  if (
-    !authorizationHeaderValue ||
-    authorizationHeaderValue.startsWith("Bearer ")
-  ) {
-    return next();
-  }
-  const token = authorizationHeaderValue.split("Bearer ")[1];
+  const tokenCookie = req.cookies?.token;
+  req.user = null;
+
+  if (!tokenCookie) return next();
+  const token = tokenCookie;
   const user = getSessionIdToUser(token);
-  if (!user) return res.redirect("/login");
   req.user = user;
-  next();
+  console.log(token);
+  return next();
 };
 
 const restrictTo = (roles = []) => {
   return (req, res, next) => {
+    console.log(req.user);
     if (!req.user) return res.redirect("/login");
 
     if (!roles.includes(req.user.role))

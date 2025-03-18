@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const secretKey = "html@css123";
 
 const setSessionIdToUser = (user) => {
-  const playload = { _id: user?._id, email: user?.email };
+  const playload = { _id: user?._id, email: user?.email, role: user?.role };
   return jwt.sign(playload, secretKey);
 };
 
