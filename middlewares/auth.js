@@ -1,23 +1,28 @@
 const { getSessionIdToUser } = require("../service/auth");
 
-const restrictToAuthenticated = (req, res, next) => {
-  const sessionId = req.cookies?.uuid;
-  if (!sessionId) {
-    return res.redirect("/login");
+const checkForAuthentication = (req, res, next) => {
+  const authorizationHeaderValue = req.headers["authorization"];
+  if (
+    !authorizationHeaderValue ||
+    authorizationHeaderValue.startsWith("Bearer ")
+  ) {
+    return next();
   }
-  const user = getSessionIdToUser(sessionId);
-  if (!user) {
-    return res.redirect("/login");
-  }
+  const token = authorizationHeaderValue.split("Bearer ")[1];
+  const user = getSessionIdToUser(token);
+  if (!user) return res.redirect("/login");
   req.user = user;
   next();
 };
 
-const checkAuth = (req, res, next) => {
-  const sessionId = req.cookies?.uuid;
-  const user = getSessionIdToUser(sessionId);
-  req.user = user;
-  next();
+const restrictTo = (roles = []) => {
+  return (req, res, next) => {
+    if (!req.user) return res.redirect("/login");
+
+    if (!roles.includes(req.user.role))
+      res.status(401).json({ error: "Unauthorized" });
+    return next();
+  };
 };
 
-module.exports = { restrictToAuthenticated, checkAuth };
+module.exports = { checkForAuthentication, restrictTo };

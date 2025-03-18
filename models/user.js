@@ -15,6 +15,11 @@ const urlSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      required: true,
+      default: "NORMAL",
+    },
     visitHistory: [{ timeStamp: { type: Number } }],
   },
   { timestamps: true }

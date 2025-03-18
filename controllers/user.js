@@ -15,9 +15,8 @@ const handleUserLogin = async (req, res) => {
     return res.render("login", { error: "Invalid Credentials" });
   }
   const token = setSessionIdToUser(user);
-  res.cookie("uuid", token);
 
-  return res.redirect("/");
+  return res.json({ token });
 };
 
 module.exports = {
